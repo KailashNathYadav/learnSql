@@ -1,0 +1,295 @@
+-- some imp datatype(number , string , time ,  binary) 
+-- shortint , int , bigint, number :: float , decimal(,) ......
+-- varchar(sz)
+-- timestamp , date
+-- blob
+
+DROP DATABASE TEST;
+CREATE  DATABASE  TEST;
+USE TEST;
+-- Do some mistake and later make it correct 
+-- using alter command 
+
+CREATE TABLE EMPLOYEE (
+    EMP_ID INT PRIMARY KEY,
+    EMP_NAME VARCHAR(20),
+    FIRST_NAME VARCHAR(20),
+    DOB INT
+);
+
+-- forget to mention age column, and 
+-- by mistake DOB is taken as int ,
+-- can`t believe added first_name while we have
+-- emp_name ,.........hmm why I named table as employee,
+-- better name would be emp_details.I think id is sufficient no
+-- need to name like emp_id, each emp have name plz make it not null,
+-- age is always positive so add contraints to check age.Lets us drop 
+-- primary key constraints from the table because I am 
+-- going to  provide not null and unique  id each time manually.
+
+-- 1.add col ::
+ALTER TABLE EMPLOYEE ADD AGE INT;
+-- 2.modify col datatype :: 
+ALTER TABLE EMPLOYEE MODIFY DOB DATE;
+-- 3.drop col :: 
+ALTER TABLE EMPLOYEE DROP COLUMN FIRST_NAME;
+-- 4.rename table :: 
+ALTER TABLE EMPLOYEE RENAME TO EMP_DETAILS;
+-- 5.rename/CHANGE col NAME :: 
+ALTER TABLE EMP_DETAILS CHANGE COLUMN EMP_ID ID INT;
+-- 6.add constraint :: 
+alter table EMP_DETAILS ADD constraint AGE_COL CHECK(AGE > 0);
+ALTER TABLE EMP_DETAILS modify EMP_NAME varchar(20) NOT NULL;
+-- 7.drop constraint :: 
+ALTER TABLE EMP_DETAILS DROP primary key;
+
+DROP TABLE EMP_DETAILS;
+
+-- DDL COMMMAND :: create alter drop comment DONE!!!
+-- various keys and constraints (primary , foreign, check, default,not null, unique , auto-increment).
+
+-- Primary Key(during table creation(during col,after col),after table creation)
+CREATE TABLE emp1 (
+    emp1_id INT PRIMARY KEY,
+    emp1_name VARCHAR(20)
+);
+
+CREATE TABLE emp2 (
+    emp2_id INT,
+    emp2_branch VARCHAR(20),
+    emp2_name VARCHAR(20),
+    CONSTRAINT PRIMARY KEY (emp2_id , emp2_branch)
+);
+
+CREATE TABLE emp3 (
+    emp3_id INT,
+    emp3_name VARCHAR(20)
+);
+
+alter table emp3 add primary key(emp3_id);
+
+-- verify not null and unique property.
+insert into emp1 value(null,'satyam');#error
+insert into emp1 value(1,'kailash');#insert twice --> error 
+
+CREATE TABLE emp4 (
+    emp4_id INT AUTO_INCREMENT PRIMARY KEY,
+    emp4_name VARCHAR(20)
+);
+
+insert into emp4(emp4_name) value('Nishant');
+
+CREATE TABLE emp5 (
+    emp5_id INT,
+    emp5_name VARCHAR(30),
+    age INT CHECK (age > 0)
+);
+
+insert into emp5 values(1,'satyam',2);
+drop table emp1,emp2,emp3,emp4,emp5;
+
+-- sql operator (arithmetic , comparision, logical , bitwise, set,  shorthand notation)
+-- arithmetic + , -, *, ,/ ,%
+-- comparision = ,<> ,>= ,<= ,< ,>, !< , !>
+-- logical and ,or , not , all , any, (in , like , between, exists, some, is)  --> you can take not ...... e.g., not in , not between, not exists, is not null ...
+-- bitwise ^ , & , |, ~, >> , <<
+-- set union , union all, intersect, minus/excepts
+-- shorthand notation += , -= , *= , /= , %= ,^= , != 
+
+-- Sql built-in func (conversion , logical , math, group/aggregate , string, date and time,window)
+-- conversion function :: cast(), convert(,), parse(), try_cast(), try_convert(), try_parse()
+SELECT CAST('2017-08-29' AS DATE);
+
+-- Logical function :: if(exp,true,false) 
+SELECT IF(500 < 1000, 'YES', 'NO') AS if_cond;
+
+-- math function :: abs(),rand(),exp(),power(),sqrt(),pi(),round(),ceil(),floor()....
+SELECT ABS(- 2),
+       SQRT(4), 
+       PI(), 
+       CEIL(4.0001), 
+       FLOOR(4.99999);
+
+-- group / aggregate func :: min(),max(),count(),sum(),avg()
+
+-- string function :: ltrim(),rtrim(),trim(),lower() = lcase(), upper() = ucase(),concat(),char(),charindex(),group_concat(........... separator ',')
+ 		      ,reverse(),substr(),len(),replace(),  ....
+
+SELECT 
+    ('        hello  ') AS wotrim,
+    LTRIM('      hello  ') AS ltrim,
+    RTRIM('     hello  ') AS rtrim,
+    TRIM('     hello  ') AS trim,
+    LEN('hello') AS length,
+    REVERSE('hello') AS reverse;
+
+-- date and time function:: now(),sysdate(),currtimestamp(),date(curdate()),monthname(),year()
+
+SELECT 
+    NOW() AS now,
+    SYSDATE() AS sysdate,
+    DATE(CURRENT_DATE()) AS curdate,
+    DAYOFMONTH(CURDATE()),
+    MONTHNAME(CURDATE()) AS monthName,
+    YEAR(CURDATE());
+
+-- window function = aggregate and ranking func: row_number(), rank(), dense_rank() ,over(PB OB), lag() ,lead() , ntile().
+SELECT col1, 
+window_function(col2)
+OVER(PARTITION BY col1 ORDER BY col3])
+FROM table_name;
+
+-- let us create a table named department and insert some value
+-- insert one value, hmm taking time want to insert more values at once,
+-- hmm just want to insert value in few column, hmmm what if I copy tuple/record
+-- from another table.
+
+CREATE TABLE IF NOT EXISTS department (
+    dm_id INT,
+    no_of_member INT,
+    address VARCHAR(20)
+);
+
+insert into department value(1,50,'Noida');
+insert into department value(2,100,'Delhi'),(3,150,'silver city');
+insert into department(no_of_member,dm_id) value(200,4);
+
+SELECT 
+    *
+FROM
+    department;
+
+CREATE TABLE depart1 (
+    dpt_id INT,
+    totalMember INT,
+    location VARCHAR(20)
+);
+
+
+-- insert using in depart1 using another table COMMAND :: insert as 
+insert into depart1 (select * from department where dm_id % 2 = 1);
+insert into depart1(dpt_id,location) (select dm_id,address from department);
+
+SELECT 
+    *
+FROM
+    depart1;
+UPDATE depart1 
+SET 
+    location = 'Banglore'
+WHERE
+    location = 'sliver city';
+
+SELECT 
+    *
+FROM
+    DEPART1,
+    DEPARTMENT
+LIMIT 3;
+
+drop table department,depart1;
+
+SELECT 
+    DM_ID
+FROM
+    DEPARTMENT;
+SELECT DISTINCT
+    (DM_ID) AS Ddm_id
+FROM
+    DEPARTMENT;
+
+# ----------- DO THESE THINGS -----------------------------------------------
+-- CREATE TABLE randomly lets us R and S
+-- INSERT SELECT 
+-- TOP 5 BOTTOM 5
+-- SORTING:: ORDER BY COL1,COL2,   ASC(DEFAULT), DESC ALONG WITH LIMIT AND OFFSET
+-- fILTERING:: AND OR NOT , = <> <= >= LIKE % _ ,IN, NOT IN, BETWEEN , NOT BETWEEN, EXISTS ,
+-- NOT EXISTS, ALL , ANY, NONE , UNION , INTERSECT, EXCEPT ,CASE WHEN THEN
+-- JOIN BASED ON COMMON COLUMN SELF JOIN TABLE ALIAS, CROSS JOIN, INNER JOIN , LEFT JOIN , RIGHT JOIN, FULL JOIN
+
+create table r(a varchar(1) , b int);
+create table s(a varchar(1) , b int);
+truncate table r;
+truncate table s;
+
+insert into r value('a',1);
+insert into r value('b',2);
+insert into r value('c',null);
+insert into r value('a',5);
+insert into r value(null,null);
+
+insert into s value('a',1);
+insert into s value('b',3);
+insert into s value(null,4);
+insert into s value('b',6);
+insert into s value(null,null);
+
+-- cartesian join ??? rows affected 
+select * from r,s limit 20;
+-- inner join on common attribute 'a'
+-- return only matching value --> ??? rows returned.
+select r.a , r.b
+from r
+inner join s
+on r.a = s.a;
+-- left join on common attribute 'a'
+-- return matching + non-matching from left :: ??? row returned.
+select r.a,r.b
+from r
+left join s
+on r.a = s.a;
+-- right join on common attribute a
+select r.a,r.b 
+from r 
+right join s
+on r.a = s.a;
+-- full join aka left join union right join
+select r.a,r.b
+from r
+left join s
+on r.a = s.a
+union 
+select r.a,r.b
+from r
+right join s
+on r.a = s.a;
+-- union 
+select * from r union select * from s;
+select * from r intersect select * from s;
+select * from r except select * from s;
+
+#STORED PROCEDURE , VIEW , AND TRIGGER.  
+-- stored procedure :: mysqlWB>DB>SP>CSP>
+/*
+	CREATE PROCEDURE `procedureName` ()
+	BEGIN
+	 /*sql query*/
+	END
+
+       >apply>apply>finish.
+*/
+call procedureName();
+
+-- view :: mySqlWB>DB>View>CV
+/*
+CREATE VIEW `new_view` AS /*sql query*/
+       >apply>apply>finish.
+*/
+
+-- trigger ::Example> We want the marks of student as soon as his/her info is provided.
+create trigger trigger_name
+before insert 
+on student
+for each row
+set new.marks = new.marks + 6;
+
+drop table r,s;
+
+-- FAMOUS SQL INTERVIEW QUESTION 
+-- Find the second highest salary.
+-- Find nth highest salary.
+-- Find the highest salary of employee in each department.
+-- Find duplicate of a column. 
+-- Sort the data from most frequent to least frequent.
+-- delete duplicate 
+-- update the gender (m -- > f, f ---> m)
